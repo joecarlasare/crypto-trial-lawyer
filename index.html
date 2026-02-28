@@ -1,0 +1,1198 @@
+import os, zipfile, textwrap, pathlib
+
+html = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joe Carlasare | Crypto Trial Lawyer — Cryptocurrency Litigation & Complex Disputes</title>
+  <meta name="description" content="Joe Carlasare — Partner at Amundsen Davis LLC. Trial lawyer and crypto litigator. High-stakes cryptocurrency fraud, digital asset disputes, and complex commercial litigation.">
+  
+  <link rel="canonical" href="https://www.cryptolawyer.io/" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --black:#000;
+      --near-black:#1d1d1f;
+      --carbon:#121214;
+      --dark-surface:#161618;
+      --dark-card:#1c1c1e;
+      --dark-border:rgba(255,255,255,.08);
+      --mid-gray:#6e6e73;
+      --light-gray:#86868b;
+      --border-gray:#d2d2d7;
+      --surface:#f5f5f7;
+      --white:#fff;
+      --blue:#0a84ff;
+      --blue-dim:rgba(10,132,255,.12);
+      --green:#30d158;
+      --green-dim:rgba(48,209,88,.12);
+      --red:#ff453a;
+      --purple:#bf5af2;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      color:var(--near-black);
+      background:var(--white);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    /* NAV */
+    nav{
+      position:fixed;top:0;width:100%;z-index:1000;
+      background:rgba(255,255,255,.72);
+      backdrop-filter:saturate(180%) blur(20px);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      border-bottom:1px solid rgba(0,0,0,.06);
+      transition:background .3s;
+    }
+    nav.dark-mode{
+      background:rgba(0,0,0,.72);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .nav-inner{
+      max-width:1120px;margin:0 auto;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:0 2rem;height:52px;
+    }
+    .nav-brand{
+      font-weight:800;font-size:.9rem;color:var(--near-black);
+      text-decoration:none;letter-spacing:-.02em;
+      display:flex;align-items:center;gap:.35rem;
+    }
+    .nav-brand .dot{color:var(--blue)}
+    .nav-brand .tld{color:var(--mid-gray);font-weight:500}
+    .nav-links{display:flex;gap:1.75rem;list-style:none;align-items:center}
+    .nav-links a{
+      color:var(--mid-gray);text-decoration:none;font-size:.8rem;font-weight:500;
+      transition:color .2s;
+    }
+    .nav-links a:hover{color:var(--near-black)}
+    .nav-pill{
+      background:var(--blue);color:var(--white)!important;
+      padding:.4rem 1rem;border-radius:980px;font-weight:600!important;
+      transition:opacity .2s;
+    }
+    .nav-pill:hover{opacity:.85}
+    .mobile-toggle{
+      display:none;background:none;border:none;font-size:1.2rem;cursor:pointer;
+      color:var(--near-black);
+    }
+
+    /* HERO */
+    .hero{
+      background:var(--black);color:var(--white);
+      padding:9rem 2rem 6rem;
+      position:relative;overflow:hidden;
+      min-height:100vh;display:flex;align-items:center;
+    }
+    .hero-grid-bg{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+      background-size:64px 64px;
+    }
+    .hero-glow{
+      position:absolute;width:600px;height:600px;border-radius:50%;
+      filter:blur(120px);opacity:.12;pointer-events:none;
+    }
+    .hero-glow-1{top:-200px;right:-100px;background:var(--blue)}
+    .hero-glow-2{bottom:-300px;left:-200px;background:var(--purple);opacity:.06}
+    .hero-inner{
+      max-width:1120px;margin:0 auto;position:relative;z-index:2;width:100%;
+      display:grid;grid-template-columns:1.25fr .75fr;gap:4rem;align-items:center;
+    }
+    .hero-tag{
+      font-size:.75rem;font-weight:700;color:var(--blue);
+      letter-spacing:.04em;text-transform:uppercase;
+      margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;
+    }
+    .hero-tag .blink{
+      width:6px;height:6px;border-radius:50%;background:var(--green);
+      animation:pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    .hero h1{
+      font-family:'DM Serif Display',serif;
+      font-size:4rem;font-weight:400;line-height:1.06;
+      letter-spacing:-.03em;margin-bottom:1.5rem;
+    }
+    .hero h1 .accent{color:var(--blue)}
+    .hero-sub{
+      font-size:1.12rem;color:rgba(255,255,255,.58);
+      line-height:1.65;max-width:540px;margin-bottom:2.5rem;font-weight:300;
+    }
+    .hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:3rem}
+    .btn-pill{
+      padding:.8rem 1.6rem;border-radius:980px;
+      font-size:.88rem;font-weight:600;text-decoration:none;
+      transition:all .2s;cursor:pointer;border:none;font-family:inherit;
+      display:inline-flex;align-items:center;gap:.4rem;
+    }
+    .btn-blue{background:var(--blue);color:var(--white)}
+    .btn-blue:hover{opacity:.85}
+    .btn-ghost{
+      background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+    .hero-creds{display:flex;gap:1rem;flex-wrap:wrap}
+    .hero-cred{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:rgba(255,255,255,.35)}
+    .hero-cred .pip{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.15)}
+
+    /* Hero headshot card */
+    .hero-photo-card{
+      position:relative;border-radius:20px;overflow:hidden;
+      box-shadow:0 24px 80px rgba(0,0,0,.5);
+      border:1px solid rgba(255,255,255,.08);
+      background:var(--dark-surface);
+    }
+    .hero-photo-card img{
+      width:100%;height:auto;display:block;object-fit:cover;aspect-ratio:3/4;
+    }
+    .hero-photo-overlay{
+      position:absolute;bottom:0;left:0;right:0;
+      padding:1.5rem;background:linear-gradient(transparent, rgba(0,0,0,.85));
+    }
+    .hero-photo-name{
+      font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--white);
+      margin-bottom:.15rem;
+    }
+    .hero-photo-title{font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.4}
+
+    /* SECTIONS */
+    section{padding:7rem 2rem}
+    .section-inner{max-width:1120px;margin:0 auto}
+    .bg-surface{background:var(--surface)}
+    .bg-dark{background:var(--carbon);color:var(--white)}
+
+    .section-center{text-align:center;max-width:680px;margin:0 auto 4rem}
+    .section-eyebrow{
+      font-size:.72rem;font-weight:800;color:var(--blue);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;
+    }
+    .section-heading{
+      font-family:'DM Serif Display',serif;font-size:2.8rem;font-weight:400;
+      line-height:1.1;letter-spacing:-.025em;margin-bottom:1rem;
+    }
+    .section-desc{font-size:1.05rem;color:var(--mid-gray);line-height:1.6;font-weight:300}
+    .dark-text .section-desc{color:rgba(255,255,255,.55)}
+
+    /* ABOUT */
+    .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:5rem;align-items:start}
+    .about-text p{font-size:1rem;color:var(--mid-gray);margin-bottom:1.2rem;line-height:1.7}
+    .about-text strong{color:var(--near-black);font-weight:700}
+    .about-text a{color:var(--blue);text-decoration:none}
+    .about-text a:hover{text-decoration:underline}
+    .about-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}
+    .chip{
+      font-size:.72rem;font-weight:600;padding:.4rem .8rem;border-radius:980px;
+      background:var(--surface);color:var(--mid-gray);border:1px solid var(--border-gray);
+    }
+    .chip.active{background:var(--blue-dim);color:var(--blue);border-color:transparent}
+
+    .cred-stack{display:flex;flex-direction:column;gap:.75rem}
+    .cred-card{
+      display:flex;align-items:flex-start;gap:1rem;
+      padding:1.1rem 1.3rem;background:var(--white);
+      border-radius:14px;border:1px solid rgba(0,0,0,.04);
+      box-shadow:0 1px 2px rgba(0,0,0,.03), 0 4px 16px rgba(0,0,0,.02);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .cred-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04)}
+    .cred-icon{
+      width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      font-size:1rem;flex-shrink:0;background:var(--blue-dim);
+    }
+    .cred-card h4{font-size:.9rem;font-weight:800;color:var(--near-black);margin-bottom:.1rem}
+    .cred-card p{font-size:.82rem;color:var(--light-gray);line-height:1.45}
+
+    /* PRACTICE */
+    .practice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    .prac-card{
+      background:var(--dark-card);border:1px solid var(--dark-border);
+      border-radius:16px;padding:1.75rem;
+      transition:transform .3s, border-color .3s;position:relative;overflow:hidden;
+    }
+    .prac-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--blue),transparent);
+      opacity:0;transition:opacity .3s;
+    }
+    .prac-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.12)}
+    .prac-card:hover::before{opacity:1}
+    .prac-card-icon{font-size:1.5rem;margin-bottom:1rem}
+    .prac-card h3{font-size:1.05rem;font-weight:800;color:var(--white);margin-bottom:.5rem;letter-spacing:-.01em}
+    .prac-card p{font-size:.86rem;color:rgba(255,255,255,.5);line-height:1.6}
+
+    /* RESULTS (no specific $) */
+    .results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+    .result-card{
+      padding:1.75rem;background:var(--white);
+      border-radius:16px;border:1px solid rgba(0,0,0,.04);
+      box-shadow:0 1px 2px rgba(0,0,0,.03), 0 4px 16px rgba(0,0,0,.02);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .result-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04)}
+    .result-card-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+    .badge{
+      width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;background:var(--blue-dim);flex-shrink:0;
+    }
+    .result-cat{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue)}
+    .result-card h3{font-size:1.05rem;font-weight:800;color:var(--near-black);margin-bottom:.4rem}
+    .result-card p{font-size:.88rem;color:var(--light-gray);line-height:1.6}
+    .results-fine{text-align:center;margin-top:2rem;font-size:.75rem;color:var(--light-gray);font-style:italic}
+
+    /* APPROACH */
+    .approach-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-bottom:3.5rem}
+    .approach-col{text-align:center;padding:1.5rem 1rem}
+    .approach-num{font-size:2.5rem;font-weight:800;color:var(--border-gray);margin-bottom:.5rem}
+    .approach-col h3{font-size:1.1rem;font-weight:800;color:var(--near-black);margin-bottom:.4rem}
+    .approach-col p{font-size:.92rem;color:var(--light-gray);line-height:1.6}
+
+    .fee-card{
+      background:var(--surface);border-radius:16px;padding:2.25rem 2.5rem;
+      display:flex;align-items:flex-start;gap:1.5rem;
+    }
+    .fee-card-icon{
+      width:44px;height:44px;border-radius:10px;background:var(--blue-dim);
+      display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;
+    }
+    .fee-card h3{font-size:1.1rem;font-weight:800;color:var(--near-black);margin-bottom:.35rem}
+    .fee-card p{font-size:.95rem;color:var(--mid-gray);line-height:1.65}
+
+    /* SCREENER */
+    #screener{
+      background:var(--black);color:var(--white);
+      padding:6rem 2rem;position:relative;overflow:hidden;
+    }
+    #screener .hero-glow{
+      width:500px;height:500px;top:-200px;left:50%;transform:translateX(-50%);
+      background:var(--blue);opacity:.06;
+    }
+    .screener-wrap{max-width:580px;margin:0 auto;position:relative;z-index:2}
+    .screener-head{text-align:center;margin-bottom:2.5rem}
+    .screener-head .section-heading{color:var(--white);font-size:2.4rem}
+    .screener-head .section-desc{color:rgba(255,255,255,.5)}
+
+    .dots{display:flex;justify-content:center;gap:6px;margin-bottom:2rem}
+    .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .4s}
+    .dot.active{background:var(--blue);width:22px;border-radius:4px}
+    .dot.done{background:var(--green)}
+
+    .s-card{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;padding:2rem;backdrop-filter:blur(8px);
+    }
+    .s-step{display:none;animation:fadeIn .4s ease}
+    .s-step.on{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    .s-q{font-size:1.1rem;font-weight:800;color:var(--white);margin-bottom:.3rem}
+    .s-hint{font-size:.85rem;color:rgba(255,255,255,.4);margin-bottom:1.25rem}
+
+    .opt-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem}
+    .opt{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;padding:.85rem 1.1rem;
+      color:rgba(255,255,255,.9);font-size:.92rem;text-align:left;
+      cursor:pointer;transition:all .2s;font-family:inherit;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .opt:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15)}
+    .opt.sel{background:var(--blue-dim);border-color:var(--blue)}
+    .opt .ck{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;transition:all .2s}
+    .opt.sel .ck{background:var(--blue);border-color:var(--blue)}
+
+    .s-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem}
+    .s-back{background:none;border:none;color:rgba(255,255,255,.45);font-size:.88rem;cursor:pointer;font-family:inherit;transition:color .2s}
+    .s-back:hover{color:var(--white)}
+    .s-next{
+      background:var(--blue);color:var(--white);border:none;
+      padding:.65rem 1.4rem;border-radius:980px;font-size:.88rem;font-weight:700;
+      cursor:pointer;font-family:inherit;transition:opacity .2s;
+    }
+    .s-next:hover{opacity:.85}
+    .s-next:disabled{opacity:.25;cursor:not-allowed}
+
+    .s-input{
+      width:100%;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;padding:.8rem 1rem;color:var(--white);
+      font-size:.92rem;font-family:inherit;transition:border-color .2s;margin-bottom:.6rem;
+    }
+    .s-input:focus{outline:none;border-color:var(--blue)}
+    .s-input::placeholder{color:rgba(255,255,255,.25)}
+    .s-textarea{resize:vertical;min-height:90px}
+    .s-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem}
+
+    .s-result{display:none;text-align:center;animation:fadeIn .5s ease;padding:1rem 0}
+    .s-result.on{display:block}
+    .s-result-icon{font-size:2.5rem;margin-bottom:.75rem}
+    .s-result-title{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--white);margin-bottom:.6rem}
+    .s-result-body{font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:1.5rem}
+
+    /* PRESS */
+    .press-grid{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
+    .press-name{font-size:.82rem;font-weight:800;color:var(--border-gray);text-transform:uppercase;letter-spacing:.04em}
+    .quote-card{max-width:680px;margin:0 auto;text-align:center}
+    .quote-card blockquote{
+      font-family:'DM Serif Display',serif;font-size:1.5rem;font-style:italic;
+      color:var(--near-black);line-height:1.45;margin-bottom:1rem;
+    }
+    .quote-card cite{font-style:normal;font-size:.8rem;color:var(--light-gray);font-weight:600}
+
+    .media-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:4rem}
+    .media-detail-col h3{
+      font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+      color:var(--blue);margin-bottom:1rem;
+    }
+    .media-item{padding:.75rem 0;border-bottom:1px solid rgba(0,0,0,.05)}
+    .media-item:last-child{border-bottom:none}
+    .media-item h4{font-size:.92rem;font-weight:700;color:var(--near-black);margin-bottom:.15rem}
+    .media-item span{font-size:.76rem;color:var(--light-gray)}
+
+    /* HONORS BAR */
+    .honors-bar{
+      display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;
+      padding:3rem 2rem;background:var(--black);
+    }
+    .honor-chip{
+      font-size:.72rem;font-weight:700;padding:.5rem 1rem;border-radius:980px;
+      background:rgba(255,255,255,.04);color:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    /* CONTACT */
+    .contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:4rem;align-items:start}
+    .contact-left h3{
+      font-family:'DM Serif Display',serif;font-size:1.8rem;font-weight:400;margin-bottom:.3rem;
+    }
+    .contact-left .contact-firm{font-size:.9rem;color:var(--light-gray);margin-bottom:1.5rem}
+    .contact-left .contact-firm a{color:var(--blue);text-decoration:none}
+    .contact-left .contact-firm a:hover{text-decoration:underline}
+    .cd{display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;font-size:.92rem;color:var(--near-black)}
+    .cd .cd-icon{font-size:.8rem;color:var(--blue);width:16px}
+
+    .contact-form{display:flex;flex-direction:column;gap:.7rem}
+    .cf-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+    .cf-group{display:flex;flex-direction:column;gap:.25rem}
+    .cf-group label{
+      font-size:.7rem;font-weight:900;color:var(--light-gray);
+      text-transform:uppercase;letter-spacing:.06em;
+    }
+    .cf-group input,.cf-group select,.cf-group textarea{
+      background:var(--white);border:1px solid var(--border-gray);
+      border-radius:10px;padding:.75rem .9rem;font-size:.92rem;font-family:inherit;
+      color:var(--near-black);transition:border-color .2s, box-shadow .2s;
+    }
+    .cf-group input:focus,.cf-group select:focus,.cf-group textarea:focus{
+      outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.1)
+    }
+    .cf-group textarea{resize:vertical;min-height:110px}
+    .fine-print{font-size:.74rem;color:var(--light-gray)}
+
+    .form-status{
+      padding:.75rem 1rem;border-radius:10px;font-size:.9rem;display:none;margin-top:.5rem;
+    }
+    .form-status.success{background:var(--green-dim);color:#1a7a34;display:block}
+    .form-status.error{background:rgba(255,69,58,.1);color:var(--red);display:block}
+
+    /* FOOTER */
+    footer{
+      background:var(--surface);border-top:1px solid rgba(0,0,0,.04);
+      padding:2.5rem 2rem;
+    }
+    .footer-inner{
+      max-width:1120px;margin:0 auto;
+      display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:2rem;
+    }
+    .footer-brand{font-weight:900;font-size:.85rem;color:var(--near-black);margin-bottom:.3rem}
+    .footer-legal{font-size:.7rem;color:var(--light-gray);max-width:480px;line-height:1.55}
+    .footer-nav{display:flex;gap:1.25rem;flex-wrap:wrap}
+    .footer-nav a{font-size:.82rem;color:var(--mid-gray);text-decoration:none;transition:color .2s}
+    .footer-nav a:hover{color:var(--near-black)}
+    .footer-bottom{
+      max-width:1120px;margin:1.5rem auto 0;padding-top:1.25rem;
+      border-top:1px solid rgba(0,0,0,.04);text-align:center;
+      font-size:.7rem;color:var(--light-gray);
+    }
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(36px);transition:opacity .7s cubic-bezier(.25,.46,.45,.94),transform .7s cubic-bezier(.25,.46,.45,.94)}
+    .reveal.vis{opacity:1;transform:translateY(0)}
+
+    /* RESPONSIVE */
+    @media (max-width:968px){
+      .hero h1{font-size:3rem}
+      .hero-inner{grid-template-columns:1fr}
+      .about-grid{grid-template-columns:1fr;gap:3rem}
+      .practice-grid{grid-template-columns:1fr 1fr}
+      .results-grid{grid-template-columns:1fr}
+      .approach-cols{grid-template-columns:1fr}
+      .contact-grid{grid-template-columns:1fr}
+      .media-detail-grid{grid-template-columns:1fr}
+      .fee-card{flex-direction:column}
+      .hero-photo-card{max-width:340px}
+    }
+    @media (max-width:640px){
+      .nav-links{display:none}
+      .mobile-toggle{display:block}
+      .nav-links.open{
+        display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;
+        background:rgba(255,255,255,.96);backdrop-filter:blur(20px);
+        padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(0,0,0,.06);
+        gap:.8rem;
+      }
+      .hero{padding:7rem 1.5rem 4rem;min-height:auto}
+      .hero h1{font-size:2.2rem}
+      .section-heading{font-size:2rem}
+      .practice-grid{grid-template-columns:1fr}
+      .cf-row{grid-template-columns:1fr}
+      .s-row{grid-template-columns:1fr}
+      .s-card{padding:1.25rem}
+      .honors-bar{gap:.75rem}
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">cryptotriallawyer<span class="dot">.</span><span class="tld">io</span></a>
+      <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#practice">Practice</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#press">Press</a></li>
+        <li><a href="#screener" class="nav-pill">Check Your Case</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag">
+          <span class="blink"></span>
+          Cryptocurrency Litigation · Complex Disputes
+        </div>
+
+        <h1>A trial lawyer who<br>understands <span class="accent">crypto.</span></h1>
+
+        <p class="hero-sub">
+          Joe Carlasare is a partner at Amundsen Davis LLC and co-chair of the firm’s Cryptocurrency,
+          Blockchain and FinTech Service Group. He handles high-stakes cryptocurrency fraud, digital
+          asset disputes, and complex commercial litigation, regularly representing both plaintiffs and defendants in matters where tens of millions of dollars are at stake.</strong>
+        </p>
+
+        <div class="hero-actions">
+          <a href="#screener" class="btn-pill btn-blue">Check if your case qualifies →</a>
+          <a href="#about" class="btn-pill btn-ghost">Learn more</a>
+        </div>
+
+        <div class="hero-creds">
+          <span class="hero-cred"><span class="pip"></span>Amundsen Davis LLC — Partner</span>
+          <span class="hero-cred"><span class="pip"></span>Chicago-Kent — Prior Adjunct Professor</span>
+          <span class="hero-cred"><span class="pip"></span>Bitcoin advocate since 2015</span>
+        </div>
+      </div>
+
+      <div class="hero-photo-card">
+        <img
+          src="https://www.amundsendavislaw.com/assets/images-t1764885802/15353.jpeg"
+          alt="Joe Carlasare — Partner at Amundsen Davis LLC"
+          onerror="this.parentElement.innerHTML='<div style=&quot;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--dark-surface);color:rgba(255,255,255,.35);font-size:.9rem;text-align:center;padding:2rem;&quot;>Headshot unavailable<br><small style=&quot;color:rgba(255,255,255,.18);margin-top:.5rem;display:block;&quot;>Host a photo locally and update the img src</small></div>'"
+        />
+        <div class="hero-photo-overlay">
+          <div class="hero-photo-name">Joe Carlasare</div>
+          <div class="hero-photo-title">Partner, Amundsen Davis LLC<br>Cryptocurrency & Complex Litigation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HONORS BAR -->
+  <div class="honors-bar">
+    <span class="honor-chip">Super Lawyers Rising Star · 2018–2026</span>
+    <span class="honor-chip">Best Lawyers: Ones to Watch · Commercial Litigation</span>
+    <span class="honor-chip">NITA Tournament of Champions · “Best Advocate”</span>
+    <span class="honor-chip">Co-Chair: Crypto, Blockchain & FinTech</span>
+    <span class="honor-chip">Adjunct Professor · Chicago-Kent College of Law</span>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about" class="bg-surface">
+    <div class="section-inner">
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <p class="section-eyebrow">About</p>
+          <h2 class="section-heading" style="margin-bottom:1.5rem;">Relentless advocacy.<br>Practical crypto fluency.</h2>
+
+          <p>
+            <strong>Joe Carlasare</strong> is a partner at
+            <a href="https://www.amundsendavislaw.com/professionals-Joe-Carlasare" target="_blank" rel="noopener">Amundsen Davis LLC</a>
+            and co-chair of the firm’s Cryptocurrency, Blockchain and FinTech Service Group. He handles
+            complex commercial litigation across the full spectrum, from cryptocurrency fraud and digital
+            asset disputes to professional liability, insurance coverage, and other high-exposure matters.
+          </p>
+
+          <p>
+            Joe has been an active investor and proponent of Bitcoin since 2015. He advises individuals and companies on
+            regulatory considerations, custodial solutions, and disputes involving cryptocurrency exchanges and other platforms.
+          </p>
+
+          <p>
+            An former adjunct professor at <strong>Chicago-Kent College of Law</strong>, Joe taught trial advocacy and coached the
+            school’s nationally ranked Trial Advocacy Team for nearly a decade. He is a frequent speaker and is regularly quoted by major outlets.
+          </p>
+
+          <div class="about-chips">
+            <span class="chip active">Crypto & Blockchain</span>
+            <span class="chip active">Trial Advocacy</span>
+            <span class="chip">Commercial Litigation</span>
+            <span class="chip">Insurance Coverage</span>
+            <span class="chip">Product Liability</span>
+            <span class="chip">Platform Disputes</span>
+            <span class="chip">DeFi & Stablecoins</span>
+            <span class="chip">eDiscovery</span>
+          </div>
+        </div>
+
+        <div class="cred-stack reveal">
+          <div class="cred-card">
+            <div class="cred-icon">⚖️</div>
+            <div>
+              <h4>Amundsen Davis LLC — Partner</h4>
+              <p>Co-Chair, Cryptocurrency, Blockchain & FinTech Service Group</p>
+            </div>
+          </div>
+          <div class="cred-card">
+            <div class="cred-icon">🎓</div>
+            <div>
+              <h4>Chicago-Kent College of Law</h4>
+              <p>Adjunct Professor, Trial Advocacy · Coaches nationally ranked Trial Advocacy Team</p>
+            </div>
+          </div>
+          <div class="cred-card">
+            <div class="cred-icon">₿</div>
+            <div>
+              <h4>Bitcoin advocate since 2015</h4>
+              <p>Practical market familiarity paired with courtroom experience</p>
+            </div>
+          </div>
+          <div class="cred-card">
+            <div class="cred-icon">📍</div>
+            <div>
+              <h4>Chicago, IL · Indianapolis, IN</h4>
+              <p>Federal courts nationwide · t: 312.894.3309</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRACTICE AREAS -->
+  <section id="practice" class="bg-dark">
+    <div class="section-inner">
+      <div class="section-center dark-text">
+        <p class="section-eyebrow">Practice Areas</p>
+        <h2 class="section-heading" style="color:var(--white)">Built for high-stakes<br>digital disputes.</h2>
+        <p class="section-desc">Joe handles cases with significant exposure and sophisticated adversaries.</p>
+      </div>
+
+      <div class="practice-grid">
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">🛡️</div>
+          <h3>Cryptocurrency Fraud</h3>
+          <p>Ponzi schemes, rug pulls, exchange fraud, insider manipulation. Aggressive recovery through litigation, asset freezes, and coordination with forensic analysts.</p>
+        </div>
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">💱</div>
+          <h3>Exchange & Platform Disputes</h3>
+          <p>Unauthorized transactions, security breaches, account freezes, and failures to honor withdrawals by exchanges, custodians, and service providers.</p>
+        </div>
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">📜</div>
+          <h3>Digital Asset Litigation</h3>
+          <p>Token ownership disputes, smart contract failures, NFT fraud, DAO governance disputes, and fiduciary-duty claims involving funds and promoters.</p>
+        </div>
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">🏢</div>
+          <h3>Complex Commercial Disputes</h3>
+          <p>High-value breach of contract, partnership disputes, trade secret claims, and business fraud matters with significant financial exposure.</p>
+        </div>
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">🔍</div>
+          <h3>Securities & Investment Fraud</h3>
+          <p>Unregistered offerings, token-sale misrepresentations, and related state and federal claims arising from investment and fundraising conduct.</p>
+        </div>
+        <div class="prac-card reveal">
+          <div class="prac-card-icon">🌐</div>
+          <h3>Cross-Border Asset Recovery</h3>
+          <p>Multi-jurisdictional tracing and recovery strategy involving counsel coordination and blockchain analytics support where appropriate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow">Track Record</p>
+        <h2 class="section-heading">Results that matter.</h2>
+        <p class="section-desc">
+          Representative matters. Outcomes vary and depend on the facts, law, and venue.
+          Details are generalized for confidentiality — without specific recovery figures.
+        </p>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card reveal">
+          <div class="result-card-header">
+            <div class="badge">🛡️</div>
+            <span class="result-cat">Crypto Fraud</span>
+          </div>
+          <h3>Substantial recovery in a lending-related fraud</h3>
+          <p>Emergency relief pursued, strategic discovery, and coordinated tracing support to identify and pursue recoverable assets.</p>
+        </div>
+
+        <div class="result-card reveal">
+          <div class="result-card-header">
+            <div class="badge">💱</div>
+            <span class="result-cat">Platform Dispute</span>
+          </div>
+          <h3>Obtained favorable resolutions of cases involving exchange misconduct</h3>
+          <p>Dispute involving liquidation/withdrawal issues addressed through rapid fact development and hard-nosed negotiation.</p>
+        </div>
+
+        <div class="result-card reveal">
+          <div class="result-card-header">
+            <div class="badge">🏢</div>
+            <span class="result-cat">Commercial Litigation</span>
+          </div>
+          <h3>Successfully obtained dismissal or summary judgment on hundreds of cases</h3>
+          <p>Proven track record of targeted motion practice and disciplined case strategy to reduce exposure.</p>
+        </div>
+
+        <div class="result-card reveal">
+          <div class="result-card-header">
+            <div class="badge">🔍</div>
+            <span class="result-cat">DeFi / Smart Contract</span>
+          </div>
+          <h3>Recovery strategy after a protocol incident</h3>
+          <p>Coordinated a litigation plan with technical support to identify responsible parties and pursue recoverable funds on dozens of cases.</p>
+        </div>
+      </div>
+
+      <p class="results-fine">Past results do not guarantee future outcomes. Every case is evaluated on its own merits.</p>
+    </div>
+  </section>
+
+  <!-- APPROACH & FEES -->
+  <section id="approach" class="bg-surface">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow">Approach</p>
+        <h2 class="section-heading">How Joe works.</h2>
+        <p class="section-desc">Joe strives for as few surprises as possible. Clear communication. Strong strategy. Powerful advocacy.</p>
+      </div>
+
+      <div class="approach-cols">
+        <div class="approach-col reveal">
+          <div class="approach-num">01</div>
+          <h3>Evaluate</h3>
+          <p>We assess the facts and legal posture and give a candid view of strengths, risks, and likely pathways.</p>
+        </div>
+        <div class="approach-col reveal">
+          <div class="approach-num">02</div>
+          <h3>Strategize</h3>
+          <p>A litigation roadmap aligned to your goals: recovery, leverage, or risk reduction with clear next steps.</p>
+        </div>
+        <div class="approach-col reveal">
+          <div class="approach-num">03</div>
+          <h3>Execute</h3>
+          <p>Focused, disciplined litigation from emergency relief to trial with urgency matching the stakes.</p>
+        </div>
+      </div>
+
+      <div class="fee-card reveal">
+        <div class="fee-card-icon">⚡</div>
+        <div>
+          <h3>Straightforward hourly billing.</h3>
+          <p>
+            Substantial cases benefit from a structure that keeps incentives clean and decisions driven by the merits.
+            Joe works on a <strong>competitive hourly basis</strong> with clear billing transparency and a candid discussion of anticipated costs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASE SCREENER -->
+  <section id="screener">
+    <div class="hero-glow"></div>
+
+    <div class="screener-wrap">
+      <div class="screener-head">
+        <p class="section-eyebrow">Case Screener</p>
+        <h2 class="section-heading">Is your case a fit?</h2>
+        <p class="section-desc">A few questions. About 30 seconds.</p>
+      </div>
+
+      <div class="dots">
+        <div class="dot active" id="d1"></div>
+        <div class="dot" id="d2"></div>
+        <div class="dot" id="d3"></div>
+      </div>
+
+      <div class="s-card">
+        <!-- Step 1 -->
+        <div class="s-step on" id="s1">
+          <p class="s-q">What type of dispute is this?</p>
+          <p class="s-hint">Select the category that best fits.</p>
+          <div class="opt-list" id="g1">
+            <button class="opt" data-v="crypto" onclick="pick(this,'g1')">Cryptocurrency / digital asset fraud<span class="ck"></span></button>
+            <button class="opt" data-v="exchange" onclick="pick(this,'g1')">Exchange or platform dispute<span class="ck"></span></button>
+            <button class="opt" data-v="defi" onclick="pick(this,'g1')">DeFi exploit / smart contract failure<span class="ck"></span></button>
+            <button class="opt" data-v="securities" onclick="pick(this,'g1')">Securities or investment fraud<span class="ck"></span></button>
+            <button class="opt" data-v="commercial" onclick="pick(this,'g1')">Complex commercial / business dispute<span class="ck"></span></button>
+            <button class="opt" data-v="other" onclick="pick(this,'g1')">Something else<span class="ck"></span></button>
+          </div>
+          <div class="s-nav">
+            <div></div>
+            <button class="s-next" id="n1" disabled onclick="go(2)">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="s-step" id="s2">
+          <p class="s-q">Approximate amount in controversy?</p>
+          <p class="s-hint">Helps determine alignment with typical case profile.</p>
+          <div class="opt-list" id="g2">
+            <button class="opt" data-v="u200" onclick="pick(this,'g2')">Under $200,000<span class="ck"></span></button>
+            <button class="opt" data-v="200-500" onclick="pick(this,'g2')">$200,000 – $500,000<span class="ck"></span></button>
+            <button class="opt" data-v="500-1m" onclick="pick(this,'g2')">$500,000 – $1,000,000<span class="ck"></span></button>
+            <button class="opt" data-v="1m-5m" onclick="pick(this,'g2')">$1,000,000 – $5,000,000<span class="ck"></span></button>
+            <button class="opt" data-v="5m-25m" onclick="pick(this,'g2')">$5,000,000 – $25,000,000<span class="ck"></span></button>
+            <button class="opt" data-v="25m+" onclick="pick(this,'g2')">$25,000,000+<span class="ck"></span></button>
+          </div>
+          <div class="s-nav">
+            <button class="s-back" onclick="go(1)">← Back</button>
+            <button class="s-next" id="n2" disabled onclick="evaluate()">See Results</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="s-step" id="s3">
+          <p class="s-q">Great — let's connect.</p>
+          <p class="s-hint">Joe will respond personally within one business day.</p>
+          <div class="s-row">
+            <input class="s-input" type="text" placeholder="Full name" id="sn" />
+            <input class="s-input" type="email" placeholder="Email" id="se" />
+          </div>
+          <input class="s-input" type="tel" placeholder="Phone (optional)" id="sp" />
+          <textarea class="s-input s-textarea" placeholder="Brief description. Treated as confidential." id="sd"></textarea>
+          <p class="s-hint" style="margin-bottom:0">Submitting does not create an attorney-client relationship.</p>
+          <div class="s-nav">
+            <button class="s-back" onclick="go(2)">← Back</button>
+            <button class="s-next" id="screenerSubmitBtn" onclick="submitScreener()">Submit Inquiry →</button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="s-result" id="r-yes">
+          <div class="s-result-icon">✅</div>
+          <h3 class="s-result-title">Your case looks like a strong fit.</h3>
+          <p class="s-result-body">Based on the dispute type and amount involved, this is the kind of matter Joe regularly handles. Next step: a confidential consultation.</p>
+          <button class="btn-pill btn-blue" onclick="go(3)">Leave your details →</button>
+        </div>
+
+        <div class="s-result" id="r-maybe">
+          <div class="s-result-icon">🔶</div>
+          <h3 class="s-result-title">This could be a fit.</h3>
+          <p class="s-result-body">Depending on complexity and specifics, Joe may be able to help. A brief consultation is the best next step.</p>
+          <button class="btn-pill btn-blue" onclick="go(3)">Leave your details →</button>
+        </div>
+
+        <div class="s-result" id="r-no">
+          <div class="s-result-icon">💬</div>
+          <h3 class="s-result-title">This may not be the right fit.</h3>
+          <p class="s-result-body">
+            Joe’s practice focuses on disputes with significant financial exposure — typically $200,000 and above.
+            For lower-value matters, specialized hourly litigation may not be proportionate to the potential recovery.<br><br>
+            You may want to explore contingency-fee counsel or contact your state bar’s lawyer referral service.
+          </p>
+          <button class="btn-pill btn-blue" onclick="reset()">Start over</button>
+        </div>
+
+        <div class="s-result" id="r-sent">
+          <div class="s-result-icon">📬</div>
+          <h3 class="s-result-title">Inquiry received.</h3>
+          <p class="s-result-body">Joe Carlasare will review your inquiry personally and respond within one business day. All information is treated as confidential.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESS -->
+  <section id="press">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow">In the Press</p>
+        <h2 class="section-heading">A trusted voice<br>in crypto asset space.</h2>
+      </div>
+
+      <div class="press-grid">
+        <span class="press-name">Bloomberg</span>
+        <span class="press-name">CoinStories</span>
+        <span class="press-name">CoinDesk</span>
+        <span class="press-name">The Block</span>
+        <span class="press-name">Reuters</span>
+        <span class="press-name">Law360</span>
+        <span class="press-name">Bitcoin Magazine</span>
+      </div>
+
+      <div class="quote-card reveal">
+        <blockquote>
+          “In crypto litigation, subject matter fluency is non-negotiable. Your lawyer needs to understand the crypto market, the players, and the tech. Success hinges on a lawyer's ability to out-maneuver the opposition on their own ground.”
+        </blockquote>
+        <cite>— Joe Carlasare</cite>
+      </div>
+
+      <div class="media-detail-grid reveal">
+        <div class="media-detail-col">
+          <h3>Speaking Engagements</h3>
+          <div class="media-item">
+            <h4>Bitcoin 2025</h4>
+            <span>Las Vegas, NV · May 2025</span>
+          </div>
+          <div class="media-item">
+            <h4>Bitcoin 2024</h4>
+            <span>Nashville, TN · July 2024</span>
+          </div>
+          <div class="media-item">
+            <h4>Payment Systems, Bitcoin & DeFi</h4>
+            <span>Frequent speaker on blockchain technology and regulation</span>
+          </div>
+        </div>
+
+        <div class="media-detail-col">
+          <h3>Selected Publications</h3>
+          <div class="media-item">
+            <h4>The EU’s AI Act and U.S. Businesses</h4>
+            <span>USLAW Magazine · Summer 2025</span>
+          </div>
+          <div class="media-item">
+            <h4>Congress Has Kicked the Cyber Hornet’s Nest</h4>
+            <span>Bitcoin Magazine · August 2021</span>
+          </div>
+          <div class="media-item">
+            <h4>El Salvador’s Use of Bitcoin Complicates US Commercial Law</h4>
+            <span>Law360 · June 2021</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="bg-surface">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow">Contact</p>
+        <h2 class="section-heading">Confidential consultation.</h2>
+        <p class="section-desc">Facing significant losses? Reach out directly.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-left reveal">
+          <h3>Joe Carlasare</h3>
+          <p class="contact-firm">
+            Partner, <a href="https://www.amundsendavislaw.com/professionals-Joe-Carlasare" target="_blank" rel="noopener">Amundsen Davis LLC</a><br>
+            Co-Chair, Cryptocurrency, Blockchain & FinTech
+          </p>
+          <div class="cd"><span class="cd-icon">t:</span> 312.894.3309</div>
+          <div class="cd"><span class="cd-icon">@:</span> jcarlasare@amundsendavislaw.com</div>
+          <div class="cd"><span class="cd-icon">◉</span> Licensed in Texas, Illinois, and Indiana </div>
+          <p style="margin-top:1.5rem;font-size:.82rem;color:var(--light-gray);">
+            All consultations are confidential. Licensed in Illinois, Texas, and Indiana, Joe represents clients in federal courts throughout the United States.
+          </p>
+        </div>
+
+        <form class="contact-form reveal" id="contactForm" onsubmit="return handleContact(event)">
+          <div class="cf-row">
+            <div class="cf-group">
+              <label>Name</label>
+              <input type="text" name="name" placeholder="Full name" required />
+            </div>
+            <div class="cf-group">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="Email" required />
+            </div>
+          </div>
+
+          <div class="cf-row">
+            <div class="cf-group">
+              <label>Phone</label>
+              <input type="tel" name="phone" placeholder="(312) 000-0000" />
+            </div>
+            <div class="cf-group">
+              <label>Matter Type</label>
+              <select name="matter_type">
+                <option value="">Select…</option>
+                <option>Cryptocurrency Fraud</option>
+                <option>Exchange / Platform Dispute</option>
+                <option>DeFi / Smart Contract</option>
+                <option>Securities / Investment Fraud</option>
+                <option>Commercial Litigation</option>
+                <option>Asset Recovery</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cf-group">
+            <label>Description</label>
+            <textarea name="description" placeholder="Brief summary. Treated as confidential."></textarea>
+          </div>
+
+          <p class="fine-print">Submitting does not create an attorney-client relationship.</p>
+          <button type="submit" class="btn-pill btn-blue" style="align-self:flex-start;" id="contactSubmitBtn">Send Inquiry →</button>
+          <div id="contactStatus" class="form-status"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">cryptotriallawyer.io</div>
+        <p class="footer-legal">
+          Joe Carlasare is a partner at Amundsen Davis LLC. This website may be considered attorney advertising. Prior results do not guarantee a similar outcome. The information on this site is for general informational purposes only and does not constitute legal advice. No attorney-client relationship is formed by viewing this content or by contacting the firm. Joe Carlasare is only licensed to practice law in Illinois, Indiana, and Texas. Joe is not licensed to practice law in any other jurisdiction and may only practice law in jurisdictions where he is properly authorized. This website may be considered attorney advertising in some states. This firm does not intend to solicit legal business in any state where it is not authorized to do so. AmundsenDavisLaw.com and its terms and conditions are expressly incorporated as if fully set forth herein. Joe Carlasare only practices law through Amundsen Davis, LLC and not in any other capacity. Do not send any confidential information through this website. The case history/results described on this site are illustrative of the matters handled by the firm and are not intended to represent a guarantee of success. The facts and legal issues in every case are unique.
+
+
+
+        </p>
+      </div>
+
+      <div class="footer-nav">
+        <a href="#about">About</a>
+        <a href="#practice">Practice</a>
+        <a href="#results">Results</a>
+        <a href="#screener">Screener</a>
+        <a href="#contact">Contact</a>
+        <a href="https://www.amundsendavislaw.com/professionals-Joe-Carlasare" target="_blank" rel="noopener">Firm Bio</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 Joe Carlasare · Amundsen Davis LLC · Attorney Advertising
+    </div>
+  </footer>
+
+  <script>
+    // Reveal on scroll
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // Nav dark-mode over dark sections
+    const darkSections = document.querySelectorAll('.hero, .bg-dark, #screener, .honors-bar');
+    const navEl = document.getElementById('nav');
+
+    function checkNavMode() {
+      const navBottom = navEl.getBoundingClientRect().bottom;
+      let isDark = false;
+      darkSections.forEach(sec => {
+        const r = sec.getBoundingClientRect();
+        if (r.top < navBottom && r.bottom > 0) isDark = true;
+      });
+      navEl.classList.toggle('dark-mode', isDark);
+      navEl.querySelector('.nav-brand').style.color = isDark ? '#fff' : '';
+      navEl.querySelector('.mobile-toggle').style.color = isDark ? '#fff' : '';
+      navEl.querySelectorAll('.nav-links a:not(.nav-pill)').forEach(a => {
+        a.style.color = isDark ? 'rgba(255,255,255,0.65)' : '';
+      });
+    }
+    window.addEventListener('scroll', checkNavMode);
+    window.addEventListener('load', checkNavMode);
+
+    // Email routing (Contact + Screener) via FormSubmit
+    const FORM_ENDPOINT = 'https://formsubmit.co/ajax/jcarlasare@amundsendavislaw.com';
+
+    async function sendToEmail(data) {
+      try {
+        const response = await fetch(FORM_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        return response.ok;
+      } catch (e) {
+        // Fallback: mailto
+        const subject = encodeURIComponent(data._subject || 'Inquiry from cryptotriallawyer.io');
+        const body = encodeURIComponent(Object.entries(data).map(([k, v]) => `${k}: ${v}`).join('\n'));
+        window.location.href = `mailto:jcarlasare@amundsendavislaw.com?subject=${subject}&body=${body}`;
+        return true;
+      }
+    }
+
+    // Screener logic
+    let D = { type: null, amt: null };
+
+    function pick(btn, gid) {
+      document.getElementById(gid).querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      if (gid === 'g1') { D.type = btn.dataset.v; document.getElementById('n1').disabled = false; }
+      if (gid === 'g2') { D.amt = btn.dataset.v; document.getElementById('n2').disabled = false; }
+    }
+
+    function go(step) {
+      document.querySelectorAll('.s-step').forEach(s => s.classList.remove('on'));
+      document.querySelectorAll('.s-result').forEach(r => r.classList.remove('on'));
+      const t = document.getElementById('s' + step);
+      if (t) t.classList.add('on');
+
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById('d' + i);
+        dot.classList.remove('active', 'done');
+        if (i < step) dot.classList.add('done');
+        if (i === step) dot.classList.add('active');
+      }
+    }
+
+    function evaluate() {
+      document.querySelectorAll('.s-step').forEach(s => s.classList.remove('on'));
+      document.querySelectorAll('.s-result').forEach(r => r.classList.remove('on'));
+      [1,2,3].forEach(i => {
+        document.getElementById('d' + i).classList.remove('active');
+        document.getElementById('d' + i).classList.add('done');
+      });
+
+      if (D.amt === 'u200') document.getElementById('r-no').classList.add('on');
+      else if (D.amt === '200-500') document.getElementById('r-maybe').classList.add('on');
+      else document.getElementById('r-yes').classList.add('on');
+    }
+
+    async function submitScreener() {
+      const name = document.getElementById('sn').value.trim();
+      const email = document.getElementById('se').value.trim();
+      const phone = document.getElementById('sp').value.trim();
+      const desc = document.getElementById('sd').value.trim();
+
+      if (!name || !email) { alert('Please provide your name and email.'); return; }
+
+      const btn = document.getElementById('screenerSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      const typeLabels = {
+        crypto: 'Cryptocurrency / Digital Asset Fraud',
+        exchange: 'Exchange or Platform Dispute',
+        defi: 'DeFi Exploit / Smart Contract Failure',
+        securities: 'Securities or Investment Fraud',
+        commercial: 'Complex Commercial / Business Dispute',
+        other: 'Other'
+      };
+
+      const amtLabels = {
+        'u200': 'Under $200,000',
+        '200-500': '$200,000 – $500,000',
+        '500-1m': '$500,000 – $1,000,000',
+        '1m-5m': '$1,000,000 – $5,000,000',
+        '5m-25m': '$5,000,000 – $25,000,000',
+        '25m+': '$25,000,000+'
+      };
+
+      await sendToEmail({
+        _subject: 'Case Screener Inquiry — cryptotriallawyer.io',
+        Source: 'Case Screener Tool',
+        Name: name,
+        Email: email,
+        Phone: phone || 'Not provided',
+        'Dispute Type': typeLabels[D.type] || (D.type || 'Not selected'),
+        'Amount in Controversy': amtLabels[D.amt] || (D.amt || 'Not selected'),
+        Description: desc || 'Not provided'
+      });
+
+      document.querySelectorAll('.s-step').forEach(s => s.classList.remove('on'));
+      document.querySelectorAll('.s-result').forEach(r => r.classList.remove('on'));
+      document.getElementById('r-sent').classList.add('on');
+
+      btn.disabled = false;
+      btn.textContent = 'Submit Inquiry →';
+    }
+
+    function reset() {
+      D = { type: null, amt: null };
+      document.querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+      document.getElementById('n1').disabled = true;
+      document.getElementById('n2').disabled = true;
+      ['sn','se','sp','sd'].forEach(id => document.getElementById(id).value = '');
+      document.querySelectorAll('.s-result').forEach(r => r.classList.remove('on'));
+      go(1);
+    }
+
+    async function handleContact(e) {
+      e.preventDefault();
+      const form = document.getElementById('contactForm');
+      const btn = document.getElementById('contactSubmitBtn');
+      const status = document.getElementById('contactStatus');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      status.className = 'form-status';
+      status.style.display = 'none';
+
+      const formData = new FormData(form);
+      const data = { _subject: 'New Inquiry from cryptotriallawyer.io', Source: 'Contact Form' };
+      formData.forEach((v, k) => { data[k] = v; });
+
+      const success = await sendToEmail(data);
+
+      if (success) {
+        status.textContent = 'Thank you. Joe Carlasare will respond within one business day.';
+        status.className = 'form-status success';
+        form.reset();
+      } else {
+        status.textContent = 'There was an issue sending your inquiry. Please email jcarlasare@amundsendavislaw.com directly.';
+        status.className = 'form-status error';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Send Inquiry →';
+      return false;
+    }
+  </script>
+
+</body>
+</html>
+"""
