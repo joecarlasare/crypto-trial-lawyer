@@ -69,6 +69,22 @@
       transition:color .2s;
     }
     .nav-links a:hover{color:var(--near-black)}
+    /* Side-project link: set apart from the practice-area links so it
+       reads as an aside rather than another service. */
+    .nav-game{
+      display:inline-flex;align-items:center;gap:.3rem;
+      padding:.3rem .7rem;border-radius:980px;
+      border:1px solid rgba(0,0,0,.1);
+      font-size:.75rem!important;
+      opacity:.75;transition:opacity .2s,border-color .2s;
+    }
+    .nav-game:hover{opacity:1;border-color:rgba(0,0,0,.25);color:var(--near-black)}
+    nav.dark-mode .nav-game{
+      border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.65);
+    }
+    nav.dark-mode .nav-game:hover{
+      border-color:rgba(255,255,255,.35);color:var(--white);
+    }
     .nav-pill{
       background:var(--blue);color:var(--white)!important;
       padding:.4rem 1rem;border-radius:980px;font-weight:600!important;
@@ -456,9 +472,17 @@
       .nav-links.open{
         display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;
         background:rgba(255,255,255,.96);backdrop-filter:blur(20px);
+        -webkit-backdrop-filter:blur(20px);
         padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(0,0,0,.06);
         gap:.8rem;
       }
+      /* Over the dark hero the nav is in dark-mode, so the open menu needs a
+         matching dark panel or the page shows through behind the links. */
+      nav.dark-mode .nav-links.open{
+        background:rgba(0,0,0,.96);
+        border-bottom:1px solid rgba(255,255,255,.08);
+      }
+      .nav-game{align-self:flex-start}
       .hero{padding:7rem 1.5rem 4rem;min-height:auto}
       .hero h1{font-size:2.2rem}
       .section-heading{font-size:2rem}
@@ -482,6 +506,7 @@
         <li><a href="#results">Results</a></li>
         <li><a href="#approach">Approach</a></li>
         <li><a href="#press">Press</a></li>
+        <li><a href="game.html" class="nav-game">🛹 Game</a></li>
         <li><a href="#screener" class="nav-pill">Check Your Case</a></li>
       </ul>
     </div>
@@ -1012,7 +1037,7 @@
         navEl.classList.toggle('dark-mode', isDark);
         navEl.querySelector('.nav-brand').style.color = isDark ? '#fff' : '';
         navEl.querySelector('.mobile-toggle').style.color = isDark ? '#fff' : '';
-        navEl.querySelectorAll('.nav-links a:not(.nav-pill)').forEach(function (a) {
+        navEl.querySelectorAll('.nav-links a:not(.nav-pill):not(.nav-game)').forEach(function (a) {
           a.style.color = isDark ? 'rgba(255,255,255,0.65)' : '';
         });
       }
