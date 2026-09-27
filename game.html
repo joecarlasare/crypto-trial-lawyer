@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benedetto's Frankfort Skate — cryptotriallawyer.io</title>
+  <meta name="description" content="Benedetto's Frankfort Skate: Cousin Chaos — a homemade NES-style platformer set in Frankfort, Illinois. A side project, not legal content.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --black:#000;
+      --near-black:#1d1d1f;
+      --carbon:#121214;
+      --dark-surface:#161618;
+      --dark-border:rgba(255,255,255,.08);
+      --mid-gray:#6e6e73;
+      --white:#fff;
+      --blue:#0a84ff;
+      --green:#30d158;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    html,body{max-width:100%;overflow-x:hidden}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      background:var(--black);color:var(--white);
+      line-height:1.6;min-height:100vh;
+      display:flex;flex-direction:column;
+    }
+    /* TOP BAR */
+    .game-bar{
+      flex:0 0 auto;
+      background:rgba(0,0,0,.72);
+      backdrop-filter:saturate(180%) blur(20px);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      border-bottom:1px solid var(--dark-border);
+    }
+    .game-bar-inner{
+      max-width:1120px;margin:0 auto;
+      display:flex;justify-content:space-between;align-items:center;
+      gap:1rem;padding:0 1.5rem;height:52px;
+    }
+    .game-brand{
+      font-weight:800;font-size:.9rem;color:var(--white);
+      text-decoration:none;letter-spacing:-.02em;white-space:nowrap;
+    }
+    .game-brand .dot{color:var(--blue)}
+    .game-brand .tld{color:var(--mid-gray);font-weight:500}
+    .game-back{
+      display:inline-flex;align-items:center;gap:.4rem;
+      color:rgba(255,255,255,.7);text-decoration:none;
+      font-size:.8rem;font-weight:500;
+      padding:.4rem .9rem;border-radius:980px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      transition:all .2s;white-space:nowrap;
+    }
+    .game-back:hover{background:rgba(255,255,255,.1);color:var(--white)}
+    /* INTRO */
+    .game-intro{
+      flex:0 0 auto;text-align:center;
+      padding:1.75rem 1.5rem 1.25rem;
+      max-width:620px;margin:0 auto;
+    }
+    .game-eyebrow{
+      font-size:.7rem;font-weight:800;color:var(--green);
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:.9rem;
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+    }
+    .game-eyebrow .pip{width:5px;height:5px;border-radius:50%;background:var(--green)}
+    .game-intro h1{
+      font-family:'DM Serif Display',serif;
+      font-size:2.1rem;font-weight:400;line-height:1.1;
+      letter-spacing:-.025em;margin-bottom:.7rem;
+    }
+    .game-intro p{
+      font-size:.95rem;color:rgba(255,255,255,.55);
+      font-weight:300;line-height:1.65;
+    }
+    .game-controls{
+      display:flex;justify-content:center;gap:.5rem;
+      flex-wrap:wrap;margin-top:1.1rem;
+    }
+    .key-hint{
+      font-size:.72rem;color:rgba(255,255,255,.5);
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      padding:.35rem .75rem;border-radius:6px;
+    }
+    .key-hint b{color:rgba(255,255,255,.9);font-weight:700}
+    /* STAGE */
+    .game-stage{
+      flex:1 1 auto;display:flex;align-items:center;justify-content:center;
+      padding:0 1.5rem 2rem;min-height:0;width:100%;
+    }
+    .game-frame{
+      position:relative;
+      width:min(100%, 768px, (100dvh - 300px) * 256 / 240);
+      max-width:100%;
+      aspect-ratio:256/240;
+      border-radius:16px;overflow:hidden;
+      background:var(--black);
+      border:1px solid var(--dark-border);
+      box-shadow:0 24px 80px rgba(0,0,0,.6);
+    }
+    .game-frame iframe{
+      position:absolute;inset:0;
+      width:100%;height:100%;border:0;display:block;
+    }
+    /* FOOTER NOTE */
+    .game-note{
+      flex:0 0 auto;
+      border-top:1px solid var(--dark-border);
+      padding:1.5rem;text-align:center;
+    }
+    .game-note p{
+      max-width:720px;margin:0 auto;
+      font-size:.7rem;color:rgba(255,255,255,.3);line-height:1.6;
+    }
+    @media(max-width:600px){
+      .game-intro{padding:1.1rem 1.25rem .9rem}
+      .game-intro h1{font-size:1.5rem;margin-bottom:.4rem}
+      .game-intro p{font-size:.82rem;line-height:1.5}
+      .game-controls{display:none}
+      .game-stage{padding:0 .75rem 1rem}
+      /* The game draws its own touch D-pad and A/B buttons and needs the
+         extra vertical room to lay them out below the play area. */
+      .game-frame{
+        border-radius:12px;
+        width:100%;
+        aspect-ratio:auto;
+        height:min(78dvh, 640px);
+      }
+      .game-note{padding:1rem}
+      .game-note p{font-size:.65rem}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-bar">
+    <div class="game-bar-inner">
+      <a href="index.html" class="game-brand">cryptotriallawyer<span class="dot">.</span><span class="tld">io</span></a>
+      <a href="index.html" class="game-back">&larr; Back to the site</a>
+    </div>
+  </div>
+
+  <div class="game-intro">
+    <p class="game-eyebrow"><span class="pip"></span>Off the clock</p>
+    <h1>Benedetto's Frankfort Skate</h1>
+    <p>
+      A homemade NES-style platformer set in Frankfort, Illinois &mdash; skate
+      Breidert Green, Kansas Street and the Old Plank Road Trail while five
+      cousins do everything they can to get in the way.
+    </p>
+    <div class="game-controls">
+      <span class="key-hint"><b>&larr; &rarr;</b> Move</span>
+      <span class="key-hint"><b>Z</b> Jump</span>
+      <span class="key-hint"><b>X</b> Run</span>
+      <span class="key-hint"><b>Enter</b> Start</span>
+    </div>
+  </div>
+
+  <div class="game-stage">
+    <div class="game-frame">
+      <iframe
+        src="skate-game.html"
+        title="Benedetto's Frankfort Skate: Cousin Chaos"
+        allow="fullscreen"
+        loading="eager"></iframe>
+    </div>
+  </div>
+
+  <div class="game-note">
+    <p>
+      This page is a personal side project and contains no legal information or
+      attorney advertising. Nothing here constitutes legal advice or creates an
+      attorney-client relationship.
+      <a href="index.html" style="color:rgba(255,255,255,.5)">Return to cryptotriallawyer.io</a>
+    </p>
+  </div>
+
+</body>
+</html>
