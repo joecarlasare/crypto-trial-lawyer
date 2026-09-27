@@ -379,6 +379,42 @@
     }
     .form-status.success{background:var(--green-dim);color:#1a7a34;display:block}
     .form-status.error{background:rgba(255,69,58,.1);color:var(--red);display:block}
+    /* ASIDE / OFF THE CLOCK */
+    .aside-card{
+      display:grid;grid-template-columns:auto 1fr auto;
+      gap:1.75rem;align-items:center;
+      max-width:880px;margin:0 auto;
+      background:var(--dark-card);
+      border:1px solid var(--dark-border);
+      border-radius:18px;padding:1.75rem 2rem;
+    }
+    .aside-art{
+      width:56px;height:56px;flex:0 0 auto;
+      border-radius:12px;background:var(--black);
+      border:1px solid rgba(255,255,255,.1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.6rem;line-height:1;
+    }
+    .aside-label{
+      font-size:.68rem;font-weight:800;color:var(--green);
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;
+    }
+    .aside-title{
+      font-family:'DM Serif Display',serif;
+      font-size:1.35rem;color:var(--white);
+      line-height:1.25;margin-bottom:.3rem;
+    }
+    .aside-desc{
+      font-size:.85rem;color:rgba(255,255,255,.45);
+      font-weight:300;line-height:1.55;
+    }
+    @media(max-width:768px){
+      .aside-card{
+        grid-template-columns:auto 1fr;
+        gap:1rem 1.25rem;padding:1.5rem;
+      }
+      .aside-card .btn-pill{grid-column:1/-1;justify-content:center}
+    }
     /* FOOTER */
     footer{
       background:var(--surface);border-top:1px solid rgba(0,0,0,.04);
@@ -843,6 +879,23 @@
       </div>
     </div>
   </section>
+  <!-- OFF THE CLOCK -->
+  <section id="offtheclock" class="bg-dark dark-text" style="padding:4.5rem 2rem">
+    <div class="section-inner">
+      <div class="aside-card">
+        <div class="aside-art">🛹</div>
+        <div>
+          <p class="aside-label">Off the clock</p>
+          <h3 class="aside-title">Benedetto's Frankfort Skate</h3>
+          <p class="aside-desc">
+            A homemade NES-style platformer set in Frankfort, Illinois. Not legal
+            content &mdash; just a side project.
+          </p>
+        </div>
+        <a href="game.html" class="btn-pill btn-ghost">Play the game &rarr;</a>
+      </div>
+    </div>
+  </section>
   <!-- CONTACT -->
   <section id="contact" class="bg-surface">
     <div class="section-inner">
@@ -922,6 +975,7 @@
         <a href="#screener">Screener</a>
         <a href="#contact">Contact</a>
         <a href="https://www.amundsendavislaw.com/professionals-Joe-Carlasare" target="_blank" rel="noopener">Firm Bio</a>
+        <a href="game.html">Skate Game</a>
       </div>
     </div>
     <div class="footer-bottom">
